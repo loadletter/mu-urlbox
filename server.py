@@ -2,6 +2,8 @@ import cherrypy
 import os, sys, base64
 import psycopg2, psycopg2.pool
 from contextlib import contextmanager
+from capcache import PsqlCaptcha
+from htmltempl import *
 from dbconf import *
 
 #>>> h = 'be6e7836f8f6b4bf5cf79d78b44679296bb6f76f1cc187c6d15001ce0ac23771'
@@ -11,7 +13,7 @@ from dbconf import *
 #
 
 try:
-	DBCONN = psycopg2.pool.ThreadedConnectionPool(1, 8, DSN)
+	DBCONN = psycopg2.pool.ThreadedConnectionPool(1, 16, DSN)
 except:
 	cherrypy.log("UNABLE TO CONNECT TO DATABASE, TERMINATING!", context='DATABASE', severity=logging.ERROR, traceback=False)
 	sys.exit(1)
@@ -46,25 +48,12 @@ class Form(object):
 	def default(self, group):
 		if not group.isdigit():
 			cherrypy.response.status = 400
-			return ""
+			return PAGE_ERROR_400
 		
-		#for i in range(0, 4):
-			#try:
-				#data = None
-				#with getcursor() as cur:
-					#cur.execute('SELECT array_to_json(sagedlist), lastmod FROM sage WHERE threadno = (%s) AND board = (%s) LIMIT 1', (thread, board))
-					#data = cur.fetchone()
-			#except psycopg2.InterfaceError:
-				#if i == 3:
-					#cherrypy.response.status = 500
-					#return "Database connection error"
-				#if not data:
-					#continue
-			#break
-		
-		#if not data:
-			#cherrypy.response.status = 404
-			#return ""
+		capt = PsqlCaptcha(conn_pool=DBCONN)
+		imgid, imgraw = capt.getcaptcha()
+		img = bin2base64url(imgraw, capt.imgformat)
+
 		
 		
 		cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
@@ -93,7 +82,7 @@ class Root(object):
 			
 		if not data:
 			cherrypy.response.status = 404
-			return ""
+			return PAGE_ERROR_404
 			
 		fullpg = u"Number of entries in the queue: %i" % data[0]
 			
@@ -102,6 +91,10 @@ class Root(object):
 	
 	
 def main():
+	captchainit = PsqlCaptcha(conn_pool=DBCONN)
+	captchainit.inittable()
+	captchainit.updatecache()
+	
 	conf_path = os.path.dirname(os.path.abspath(__file__))
 	conf_path = os.path.join(conf_path, "webserver.conf")
 	if os.path.isfile(conf_path):
