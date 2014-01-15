@@ -21,7 +21,7 @@ except:
 def bin2base64url(img, fmt):
 	b64 = 'data:image/' + fmt + ';base64,'
 	b64 += base64.b64encode(img)
-	return b64
+	return b64.replace("\n", "")
 
 @contextmanager
 def getcursor():
@@ -45,7 +45,7 @@ class Submit(object):
 #form to fill in
 class Form(object):
 	@cherrypy.expose
-	def default(self, group):
+	def default(self, group, update='no'):
 		if not group.isdigit():
 			cherrypy.response.status = 400
 			return PAGE_ERROR_400
@@ -54,11 +54,19 @@ class Form(object):
 		imgid, imgraw = capt.getcaptcha()
 		img = bin2base64url(imgraw, capt.imgformat)
 
+		action = "Add"
+		if update == 'yes':
+			action = "Update"
 		
+		formpg = PAGE_TOP
+		formpg += FORM_TITLE % (action, group)
+		formpg += PAGE_MIDDLE
+		formpg += html_page_form(action, group, img, imgid)
+		formpg += PAGE_BOTTOM
 		
 		cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
 		
-		#return somedata
+		return formpg.encode('utf-8')
 
 #main page showing number of things in the queue
 class Root(object):
