@@ -71,6 +71,7 @@ PAGE_POST_CAPTCHAW = html_page_error_goback("Wrong captcha!")
 PAGE_POST_DBERROR = html_page_error_goback("Error connecting to the database")
 PAGE_POST_LONGERROR = html_page_error_goback("Field too long")
 PAGE_POST_MISSERROR = html_page_error_goback("Missing required field")
+PAGE_ROOT = PAGE_TOP + "Mangaupdates-urlfix suggestion box" + PAGE_MIDDLE + "Number of entries in the queue: %i" + PAGE_BOTTOM
 
 #<button onclick="myFunction()">Try it</button>
 #

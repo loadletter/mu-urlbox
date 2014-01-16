@@ -35,6 +35,7 @@ def getcursor():
 class Submit(object):
 	@cherrypy.expose
 	def default(self, groupid=None, groupwww=None, captchatext=None, captchaid=None, refer=None):
+		cherrypy.response.headers['Content-Type'] = CONTENT_HTML
 		if not groupid or not groupwww or not captchatext or not captchaid:
 			cherrypy.response.status = 400
 			return PAGE_POST_MISSERROR
@@ -79,6 +80,7 @@ class Submit(object):
 class Form(object):
 	@cherrypy.expose
 	def default(self, group, update='no'):
+		cherrypy.response.headers['Content-Type'] = CONTENT_HTML
 		if not group.isdigit():
 			cherrypy.response.status = 400
 			return PAGE_ERROR_400
@@ -103,8 +105,6 @@ class Form(object):
 		formpg += html_page_form(action, group, img, imgid, refpg)
 		formpg += PAGE_BOTTOM
 		
-		cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
-		
 		return formpg.encode('utf-8')
 
 #main page showing number of things in the queue
@@ -113,6 +113,8 @@ class Root(object):
 	form = Form()
 	@cherrypy.expose
 	def index(self):
+		cherrypy.response.headers['Content-Type'] = CONTENT_HTML
+		
 		data = None
 		for i in range(0, 4):
 			try:
@@ -131,9 +133,8 @@ class Root(object):
 			cherrypy.response.status = 404
 			return PAGE_ERROR_404
 			
-		fullpg = u"Number of entries in the queue: %i" % data[0]
-			
-		cherrypy.response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+		fullpg = PAGE_ROOT % data[0]
+		
 		return fullpg.encode('utf-8')
 	
 	
