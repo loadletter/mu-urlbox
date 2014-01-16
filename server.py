@@ -144,7 +144,7 @@ def main():
 	captchainit.updatecache()
 	
 	with getcursor("INIT TABLE") as initcur:
-		cur.execute("CREATE TABLE IF NOT EXISTS posts (id SERIAL PRIMARY KEY, groupid INTEGER, groupwww TEXT, refer TEXT, remoteip VARCHAR(46), uagent TEXT)")
+		initcur.execute("CREATE TABLE IF NOT EXISTS posts (id SERIAL PRIMARY KEY, groupid INTEGER, groupwww TEXT, refer TEXT, remoteip VARCHAR(46), uagent TEXT)")
 		
 	conf_path = os.path.dirname(os.path.abspath(__file__))
 	conf_path = os.path.join(conf_path, "webserver.conf")
