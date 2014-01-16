@@ -1,1 +1,5 @@
+dbconf.py
+capcache.py
+kcaptcha.py
+*.ttf
 *.pyc

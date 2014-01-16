@@ -1,5 +1,5 @@
 import cherrypy
-import os, sys, base64
+import os, sys, base64, logging
 import psycopg2, psycopg2.pool
 from contextlib import contextmanager
 from capcache import PsqlCaptcha
@@ -43,6 +43,8 @@ class Submit(object):
 			cherrypy.response.status = 400
 			return PAGE_ERROR_400
 		
+		groupid = int(groupid)
+		
 		if len(groupwww) > MAXFIELDLEN or len(captchatext) > MAXFIELDLEN:
 			cherrypy.response.status = 400
 			return PAGE_POST_LONGERROR
@@ -52,6 +54,9 @@ class Submit(object):
 		refer = refer[0:MAXFIELDLEN]
 		
 		remoteip = cherrypy.request.remote.ip
+		uagent = ''
+		if 'User-Agent' in cherrypy.request.headers:
+			uagent = cherrypy.request.headers['User-Agent']
 		
 		todbdata = (groupid, groupwww, refer, remoteip, uagent)
 		
@@ -74,6 +79,8 @@ class Form(object):
 		if not group.isdigit():
 			cherrypy.response.status = 400
 			return PAGE_ERROR_400
+		
+		group = int(group)
 		
 		capt = PsqlCaptcha(conn_pool=DBCONN)
 		imgid, imgraw = capt.getcaptcha()

@@ -27,7 +27,9 @@ PAGE_FORM_2 = u'''<tr>
 		<td valign="top">
 			<fieldset>
 				<legend><h4>%s</h4></legend>
-				Group ID: <input type="text" name=groupid size="6" disabled=true value="%i">
+				Group ID: <input type="text" size="6" disabled=true value="%i">
+				<!-- disabled forms arent submitted --!>
+				<input type="hidden" name=groupid value="%i">
 				<br>
 				Group URL: <input type="text" name=groupwww style="width: 300px;">
 			</fieldset>
@@ -48,7 +50,7 @@ PAGE_FORM_2 = u'''<tr>
 
 def html_page_form(action, groupid, captchaimgstr, captchaid, refer):
 	legend = FORM_TITLE % (action, groupid)
-	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, captchaimgstr, captchaid, refer)
+	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, groupid, captchaimgstr, captchaid, refer)
 	
 PAGE_POST_SUCCESSFUL = html_page_error_custom("Sent ;)")
 PAGE_POST_DBERROR = html_page_error_custom("Error connecting to the database")
