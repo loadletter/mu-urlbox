@@ -72,6 +72,7 @@ class Submit(object):
 				if i == 3:
 					cherrypy.response.status = 500
 					return PAGE_POST_DBERROR
+				continue
 			break
 
 		return PAGE_POST_SUCCESSFUL
@@ -125,8 +126,7 @@ class Root(object):
 				if i == 3:
 					cherrypy.response.status = 500
 					return PAGE_POST_DBERROR
-				if not data:
-					continue
+				continue
 			break
 			
 		if not data:
