@@ -6,11 +6,7 @@ from capcache import PsqlCaptcha
 from htmltempl import *
 from dbconf import *
 
-#>>> h = 'be6e7836f8f6b4bf5cf79d78b44679296bb6f76f1cc187c6d15001ce0ac23771'
-#>>> from capcache import PsqlCaptcha
-#>>> test = PsqlCaptcha("dbname=testdb user=user")
-#>>> test.validate('gluomr', h)
-#
+MAXFIELDLEN = 4096
 
 try:
 	DBCONN = psycopg2.pool.ThreadedConnectionPool(1, 16, DSN)
@@ -41,18 +37,35 @@ class Submit(object):
 	def default(self, groupid=None, groupwww=None, captchatext=None, captchaid=None, refer=None):
 		if not groupid or not groupwww or not captchatext or not captchaid:
 			cherrypy.response.status = 400
-			return PAGE_ERROR_400
+			return PAGE_POST_MISSERROR
 			
-		if not groupid.isdigit():
+		if not groupid.isdigit() or len(captchaid) != 64:
 			cherrypy.response.status = 400
 			return PAGE_ERROR_400
 		
-		if refer==None:
+		if len(groupwww) > MAXFIELDLEN or len(captchatext) > MAXFIELDLEN:
+			cherrypy.response.status = 400
+			return PAGE_POST_LONGERROR
+		
+		if refer == None:
 			refer=''
+		refer = refer[0:MAXFIELDLEN]
 		
 		remoteip = cherrypy.request.remote.ip
-		#do something
-		#return somedata
+		
+		todbdata = (groupid, groupwww, refer, remoteip, uagent)
+		
+		for i in range(0, 4):
+			try:
+				with getcursor() as cur:
+					cur.execute("INSERT INTO posts (groupid, groupwww, refer, remoteip, uagent) VALUES (%s, %s, %s, %s, %s)", todbdata)
+			except psycopg2.InterfaceError:
+				if i == 3:
+					cherrypy.response.status = 500
+					return PAGE_POST_DBERROR
+			break
+
+		return PAGE_POST_SUCCESSFUL
 
 #form to fill in
 class Form(object):
@@ -90,16 +103,16 @@ class Root(object):
 	form = Form()
 	@cherrypy.expose
 	def index(self):
+		data = None
 		for i in range(0, 4):
 			try:
-				data = None
 				with getcursor() as cur:
 					cur.execute('SELECT Count(*) FROM posts')
 					data = cur.fetchone()
 			except psycopg2.InterfaceError:
 				if i == 3:
 					cherrypy.response.status = 500
-					return "Database connection error"
+					return PAGE_POST_DBERROR
 				if not data:
 					continue
 			break

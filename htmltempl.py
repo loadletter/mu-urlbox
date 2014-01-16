@@ -50,6 +50,10 @@ def html_page_form(action, groupid, captchaimgstr, captchaid, refer):
 	legend = FORM_TITLE % (action, groupid)
 	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, captchaimgstr, captchaid, refer)
 	
+PAGE_POST_SUCCESSFUL = html_page_error_custom("Sent ;)")
+PAGE_POST_DBERROR = html_page_error_custom("Error connecting to the database")
+PAGE_POST_LONGERROR = html_page_error_custom("Field too long")
+PAGE_POST_MISSERROR = html_page_error_custom("Missing required field")
 #<button onclick="myFunction()">Try it</button>
 #
 #<script>
