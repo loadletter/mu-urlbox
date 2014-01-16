@@ -58,8 +58,11 @@ class Submit(object):
 		if 'User-Agent' in cherrypy.request.headers:
 			uagent = cherrypy.request.headers['User-Agent']
 		
-		todbdata = (groupid, groupwww, refer, remoteip, uagent)
+		captcha = PsqlCaptcha(conn_pool=DBCONN)
+		if not captcha.validate(captchatext, captchaid):
+			return PAGE_POST_CAPTCHAW
 		
+		todbdata = (groupid, groupwww, refer, remoteip, uagent)
 		for i in range(0, 4):
 			try:
 				with getcursor() as cur:
