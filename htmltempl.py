@@ -39,15 +39,16 @@ PAGE_FORM_2 = u'''<tr>
 			<br>
 			<input type="text" name="captchatext" style="width: 120px;">
 			<input type="hidden" name="captchaid" value="%s">
+			<input type="hidden" name="refer" value="%s">
 			</fieldset>
 		</td>
 	</tr>
 </table>
 </form>'''
 
-def html_page_form(action, groupid, captchaimgstr, captchaid):
+def html_page_form(action, groupid, captchaimgstr, captchaid, refer):
 	legend = FORM_TITLE % (action, groupid)
-	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, captchaimgstr, captchaid)
+	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, captchaimgstr, captchaid, refer)
 	
 #<button onclick="myFunction()">Try it</button>
 #

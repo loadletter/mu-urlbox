@@ -38,7 +38,19 @@ def getcursor():
 #thing where data is POSTed to
 class Submit(object):
 	@cherrypy.expose
-	def default(self, groupid=None, groupwww=None):
+	def default(self, groupid=None, groupwww=None, captchatext=None, captchaid=None, refer=None):
+		if not groupid or not groupwww or not captchatext or not captchaid:
+			cherrypy.response.status = 400
+			return PAGE_ERROR_400
+			
+		if not groupid.isdigit():
+			cherrypy.response.status = 400
+			return PAGE_ERROR_400
+		
+		if refer==None:
+			refer=''
+		
+		remoteip = cherrypy.request.remote.ip
 		#do something
 		#return somedata
 
@@ -58,10 +70,14 @@ class Form(object):
 		if update == 'yes':
 			action = "Update"
 		
+		refpg = ''
+		if 'Referer' in cherrypy.request.headers:
+			refpg = cherrypy.request.headers['Referer']
+		
 		formpg = PAGE_TOP
 		formpg += FORM_TITLE % (action, group)
 		formpg += PAGE_MIDDLE
-		formpg += html_page_form(action, group, img, imgid)
+		formpg += html_page_form(action, group, img, imgid, refpg)
 		formpg += PAGE_BOTTOM
 		
 		cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
@@ -103,6 +119,9 @@ def main():
 	captchainit.inittable()
 	captchainit.updatecache()
 	
+	with getcursor() as initcur:
+		cur.execute("CREATE TABLE IF NOT EXISTS posts (id SERIAL PRIMARY KEY, groupid INTEGER, groupwww TEXT, refer TEXT, remoteip VARCHAR(46), uagent TEXT)")
+		
 	conf_path = os.path.dirname(os.path.abspath(__file__))
 	conf_path = os.path.join(conf_path, "webserver.conf")
 	if os.path.isfile(conf_path):
