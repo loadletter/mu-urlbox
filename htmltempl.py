@@ -53,7 +53,7 @@ def html_page_form(action, groupid, captchaimgstr, captchaid, refer):
 	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, groupid, captchaimgstr, captchaid, refer)
 	
 PAGE_POST_SUCCESSFUL = html_page_error_custom("Sent ;)")
-PAGE_POST_CAPTCHAW = html_page_error_custom("Wrong captcha!")
+PAGE_POST_CAPTCHAW = PAGE_TOP + "Wrong captcha!" + PAGE_MIDDLE + '''<h4>Wrong captcha!</h4><br>click <a href="javascript:history.back()">here</a> to go back<hr>''' + PAGE_BOTTOM
 PAGE_POST_DBERROR = html_page_error_custom("Error connecting to the database")
 PAGE_POST_LONGERROR = html_page_error_custom("Field too long")
 PAGE_POST_MISSERROR = html_page_error_custom("Missing required field")
