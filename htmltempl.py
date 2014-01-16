@@ -51,12 +51,26 @@ PAGE_FORM_2 = u'''<tr>
 def html_page_form(action, groupid, captchaimgstr, captchaid, refer):
 	legend = FORM_TITLE % (action, groupid)
 	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, groupid, captchaimgstr, captchaid, refer)
-	
-PAGE_POST_SUCCESSFUL = html_page_error_custom("Sent ;)")
-PAGE_POST_CAPTCHAW = PAGE_TOP + "Wrong captcha!" + PAGE_MIDDLE + '''<h4>Wrong captcha!</h4><br>click <a href="javascript:history.back()">here</a> to go back<hr>''' + PAGE_BOTTOM
-PAGE_POST_DBERROR = html_page_error_custom("Error connecting to the database")
-PAGE_POST_LONGERROR = html_page_error_custom("Field too long")
-PAGE_POST_MISSERROR = html_page_error_custom("Missing required field")
+
+def html_page_error_goback(msg):
+	pg = PAGE_TOP + msg + PAGE_MIDDLE + '<h4>'
+	pg += msg
+	pg += '''</h4><br>Click <a href="javascript:history.back()">here</a> to go back<hr>'''
+	pg += PAGE_BOTTOM
+	return pg
+
+def html_page_gohome(msg):
+	pg = PAGE_TOP + msg + PAGE_MIDDLE + '<h4>'
+	pg += msg
+	pg += '''</h4><br>Click <a href="/">here</a> to go home<hr>'''
+	pg += PAGE_BOTTOM
+	return pg
+
+PAGE_POST_SUCCESSFUL = html_page_gohome("Sent ;)")
+PAGE_POST_CAPTCHAW = html_page_error_goback("Wrong captcha!")
+PAGE_POST_DBERROR = html_page_error_goback("Error connecting to the database")
+PAGE_POST_LONGERROR = html_page_error_goback("Field too long")
+PAGE_POST_MISSERROR = html_page_error_goback("Missing required field")
 
 #<button onclick="myFunction()">Try it</button>
 #
