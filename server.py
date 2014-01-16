@@ -20,12 +20,12 @@ def bin2base64url(img, fmt):
 	return b64.replace("\n", "")
 
 @contextmanager
-def getcursor():
+def getcursor(query_name):
 	con = DBCONN.getconn()
 	try:
 		yield con.cursor()
 	except:
-		cherrypy.log("Error while running SELECT", context='DATABASE', severity=logging.ERROR, traceback=False)
+		cherrypy.log("Error while running %s" % query_name, context='DATABASE', severity=logging.ERROR, traceback=False)
 		con.rollback()
 	finally:
 		con.commit()
@@ -66,7 +66,7 @@ class Submit(object):
 		todbdata = (groupid, groupwww, refer, remoteip, uagent)
 		for i in range(0, 4):
 			try:
-				with getcursor() as cur:
+				with getcursor("INSERT") as cur:
 					cur.execute("INSERT INTO posts (groupid, groupwww, refer, remoteip, uagent) VALUES (%s, %s, %s, %s, %s)", todbdata)
 			except psycopg2.InterfaceError:
 				if i == 3:
@@ -118,7 +118,7 @@ class Root(object):
 		data = None
 		for i in range(0, 4):
 			try:
-				with getcursor() as cur:
+				with getcursor("SELECT COUNT") as cur:
 					cur.execute('SELECT Count(*) FROM posts')
 					data = cur.fetchone()
 			except psycopg2.InterfaceError:
@@ -143,7 +143,7 @@ def main():
 	captchainit.inittable()
 	captchainit.updatecache()
 	
-	with getcursor() as initcur:
+	with getcursor("INIT TABLE") as initcur:
 		cur.execute("CREATE TABLE IF NOT EXISTS posts (id SERIAL PRIMARY KEY, groupid INTEGER, groupwww TEXT, refer TEXT, remoteip VARCHAR(46), uagent TEXT)")
 		
 	conf_path = os.path.dirname(os.path.abspath(__file__))
