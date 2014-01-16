@@ -31,7 +31,7 @@ PAGE_FORM_2 = u'''<tr>
 				<!-- disabled forms arent submitted --!>
 				<input type="hidden" name=groupid value="%i">
 				<br>
-				Group URL: <input type="text" name=groupwww style="width: 300px;">
+				Group URL: <input type="text" name=groupwww style="width: 300px;" value="">
 			</fieldset>
 			<input type="submit" value="Submit">
 		</td>
@@ -39,7 +39,7 @@ PAGE_FORM_2 = u'''<tr>
 			<fieldset style="padding: 9px;">
 			<img src="%s" alt="Captcha challenge">
 			<br>
-			<input type="text" name="captchatext" style="width: 120px;">
+			<input type="text" name="captchatext" style="width: 120px;" value="" autocomplete="off">
 			<input type="hidden" name="captchaid" value="%s">
 			<input type="hidden" name="refer" value="%s">
 			</fieldset>
