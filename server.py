@@ -8,6 +8,10 @@ from dbconf import *
 
 MAXFIELDLEN = 4096
 
+INSERT_IGNORE = '''INSERT INTO posts (groupid, groupwww, refer, remoteip, uagent)
+SELECT %s, %s, %s, %s, %s
+WHERE NOT EXISTS (SELECT 1 FROM posts WHERE groupid = %s AND groupwww = %s)'''
+
 try:
 	DBCONN = psycopg2.pool.ThreadedConnectionPool(1, 16, DSN)
 except:
@@ -63,11 +67,11 @@ class Submit(object):
 		if not captcha.validate(captchatext, captchaid):
 			return PAGE_POST_CAPTCHAW
 		
-		todbdata = (groupid, groupwww, refer, remoteip, uagent)
+		todbdata = (groupid, groupwww, refer, remoteip, uagent, groupid, groupwww)
 		for i in range(0, 4):
 			try:
 				with getcursor("INSERT") as cur:
-					cur.execute("INSERT INTO posts (groupid, groupwww, refer, remoteip, uagent) VALUES (%s, %s, %s, %s, %s)", todbdata)
+					cur.execute(INSERT_IGNORE, todbdata)
 			except psycopg2.InterfaceError:
 				if i == 3:
 					cherrypy.response.status = 500
