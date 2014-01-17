@@ -24,8 +24,8 @@ PAGE_FORM_1 = u'''<form name="sendurl" action="/submit" method="POST">
 <table width="100%">'''
 
 PAGE_FORM_2 = u'''<tr>
-		<td valign="top">
-			<fieldset>
+		<td valign="top" style="height: 85px;">
+			<fieldset style="padding: 3px 5px 28px; margin: auto;">
 				<legend><h4>%s</h4></legend>
 				Group ID: <input type="text" size="6" disabled=true value="%i">
 				<!-- disabled forms arent submitted --!>
@@ -35,8 +35,9 @@ PAGE_FORM_2 = u'''<tr>
 			</fieldset>
 			<input type="submit" value="Submit">
 		</td>
-		<td style="width: 126px; padding-top:9px; padding-bottom:3px;"  align="center" >
-			<fieldset style="padding: 9px;">
+		<td style="width: 126px; height: 85px;" valign="top">
+			<fieldset style="padding: 1px; margin: auto; text-align: center;">
+			<legend><h4>Verification</h4></legend>
 			<img src="%s" alt="Captcha challenge">
 			<br>
 			<input type="text" name="captchatext" style="width: 120px;" value="" autocomplete="off">
