@@ -2,7 +2,6 @@ import cherrypy
 import os, sys, base64, logging
 import psycopg2, psycopg2.pool
 from contextlib import contextmanager
-from capcache import PsqlCaptcha
 from htmltempl import *
 from dbconf import *
 
@@ -17,11 +16,6 @@ try:
 except:
 	cherrypy.log("UNABLE TO CONNECT TO DATABASE, TERMINATING!", context='DATABASE', severity=logging.ERROR, traceback=False)
 	sys.exit(1)
-
-def bin2base64url(img, fmt):
-	b64 = 'data:image/' + fmt + ';base64,'
-	b64 += base64.b64encode(img)
-	return b64.replace("\n", "")
 
 @contextmanager
 def getcursor(query_name):
@@ -38,19 +32,19 @@ def getcursor(query_name):
 #thing where data is POSTed to
 class Submit(object):
 	@cherrypy.expose
-	def default(self, groupid=None, groupwww=None, captchatext=None, captchaid=None, refer=None):
+	def default(self, groupid=None, groupwww=None, refer=None):
 		cherrypy.response.headers['Content-Type'] = CONTENT_HTML
-		if not groupid or not groupwww or not captchatext or not captchaid:
+		if not groupid or not groupwww:
 			cherrypy.response.status = 400
 			return PAGE_POST_MISSERROR
 			
-		if not groupid.isdigit() or len(captchaid) != 64:
+		if not groupid.isdigit():
 			cherrypy.response.status = 400
 			return PAGE_ERROR_400
 		
 		groupid = int(groupid)
 		
-		if len(groupwww) > MAXFIELDLEN or len(captchatext) > MAXFIELDLEN:
+		if len(groupwww) > MAXFIELDLEN:
 			cherrypy.response.status = 400
 			return PAGE_POST_LONGERROR
 		
@@ -62,10 +56,6 @@ class Submit(object):
 		uagent = ''
 		if 'User-Agent' in cherrypy.request.headers:
 			uagent = cherrypy.request.headers['User-Agent']
-		
-		captcha = PsqlCaptcha(conn_pool=DBCONN)
-		if not captcha.validate(captchatext, captchaid):
-			return PAGE_POST_CAPTCHAW
 		
 		todbdata = (groupid, groupwww, refer, remoteip, uagent, groupid, groupwww)
 		for i in range(0, 4):
@@ -91,10 +81,6 @@ class Form(object):
 			return PAGE_ERROR_400
 		
 		group = int(group)
-		
-		capt = PsqlCaptcha(conn_pool=DBCONN)
-		imgid, imgraw = capt.getcaptcha()
-		img = bin2base64url(imgraw, capt.imgformat)
 
 		action = "Add"
 		if update == 'yes':
@@ -107,7 +93,7 @@ class Form(object):
 		formpg = PAGE_TOP
 		formpg += FORM_TITLE % (action, group)
 		formpg += PAGE_MIDDLE
-		formpg += html_page_form(action, group, img, imgid, refpg)
+		formpg += html_page_form(action, group, refpg)
 		formpg += PAGE_BOTTOM
 		
 		return formpg.encode('utf-8')
@@ -143,10 +129,6 @@ class Root(object):
 	
 	
 def main():
-	captchainit = PsqlCaptcha(conn_pool=DBCONN)
-	captchainit.inittable()
-	captchainit.updatecache()
-	
 	with getcursor("INIT TABLE") as initcur:
 		initcur.execute("CREATE TABLE IF NOT EXISTS posts (id SERIAL PRIMARY KEY, groupid INTEGER, groupwww TEXT, refer TEXT, remoteip VARCHAR(46), uagent TEXT)")
 		

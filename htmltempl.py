@@ -20,38 +20,20 @@ PAGE_ERROR_500 = html_page_error_custom("500 - Internal server error")
 
 FORM_TITLE = u"%s website url for group %i"
 
-PAGE_FORM_1 = u'''<form name="sendurl" action="/submit" method="POST">
-<table width="100%">'''
+PAGE_FORM_1 = u'''<form name="sendurl" action="/submit" method="POST">'''
 
-PAGE_FORM_2 = u'''<tr>
-		<td valign="top" style="height: 85px;">
-			<fieldset style="padding: 3px 5px 28px; margin: auto;">
-				<legend><h4>%s</h4></legend>
-				Group ID: <input type="text" size="6" disabled=true value="%i">
-				<!-- disabled forms arent submitted --!>
-				<input type="hidden" name=groupid value="%i">
-				<br>
-				Group URL: <input type="text" name=groupwww style="width: 300px;" value="">
-			</fieldset>
-			<input type="submit" value="Submit">
-		</td>
-		<td style="width: 126px; height: 85px;" valign="top">
-			<fieldset style="padding: 1px; margin: auto; text-align: center;">
-			<legend><h4>Verification</h4></legend>
-			<img src="%s" alt="Captcha challenge">
-			<br>
-			<input type="text" name="captchatext" style="width: 120px;" value="" autocomplete="off">
-			<input type="hidden" name="captchaid" value="%s">
-			<input type="hidden" name="refer" value="%s">
-			</fieldset>
-		</td>
-	</tr>
-</table>
+PAGE_FORM_2 = u'''<fieldset style="margin: auto;">
+	<legend><h4>%s</h4></legend>
+	<!-- disabled forms arent submitted --!>
+	<input type="hidden" name=groupid value="%i">
+	<input type="hidden" name="refer" value="%s">
+	Group URL: <input type="text" name=groupwww style="width: 72%%;" value=""><input type="submit" value="Submit">
+</fieldset>
 </form>'''
 
-def html_page_form(action, groupid, captchaimgstr, captchaid, refer):
+def html_page_form(action, groupid, refer):
 	legend = FORM_TITLE % (action, groupid)
-	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, groupid, captchaimgstr, captchaid, refer)
+	return PAGE_FORM_1 + PAGE_FORM_2 % (legend, groupid, refer)
 
 def html_page_error_goback(msg):
 	pg = PAGE_TOP + msg + PAGE_MIDDLE + '<h4>'
@@ -68,18 +50,8 @@ def html_page_gohome(msg):
 	return pg
 
 PAGE_POST_SUCCESSFUL = html_page_gohome("Sent ;)")
-PAGE_POST_CAPTCHAW = html_page_error_goback("Wrong captcha!")
 PAGE_POST_DBERROR = html_page_error_goback("Error connecting to the database")
 PAGE_POST_LONGERROR = html_page_error_goback("Field too long")
 PAGE_POST_MISSERROR = html_page_error_goback("Missing required field")
 PAGE_ROOT = PAGE_TOP + "Mangaupdates-urlfix suggestion box" + PAGE_MIDDLE + "Number of entries in the queue: %i" + PAGE_BOTTOM
-
-#<button onclick="myFunction()">Try it</button>
-#
-#<script>
-#function myFunction()
-#{
-#window.open('http://jsfiddle.net/xQSLL/show/','','scrollbars=no,resizable=yes, width=700,height=200,status=no,location=no,toolbar=no');
-#}
-#</script>
 
